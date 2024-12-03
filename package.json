@@ -1,0 +1,27 @@
+{
+  "name": "moon-trading-terminal",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npx tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@wen-moon-ser/moonshot-sdk-evm": "^0.0.3",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.16.0",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.1",
+    "eslint": "^9.16.0",
+    "globals": "^15.13.0",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.17.0"
+  }
+}
