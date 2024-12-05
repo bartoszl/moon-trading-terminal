@@ -2,7 +2,12 @@
 
 ## Testing
 
-In order to run integration tests a forked Base network has to be started using `Anvil`. The rpc url can be changed,
+In order to run integration tests a forked Base network has to be started using `Anvil`. 
+
+Check https://book.getfoundry.sh/getting-started/installation for installation guide.
+
+
+The rpc url can be changed,
 but block number should remain unchanged to ensure consistency between test runs.
 
 ```
