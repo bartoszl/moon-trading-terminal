@@ -14,12 +14,12 @@ describe("App tests", () => {
     const erc20tokenContract = new ethers.Contract(tokenAddress, erc20, signer);
 
     const tokenAmount = '100';
-    const slippage = 50000;
+    const slippage = 50000; // 5%
 
     const response = await request(app).post("/prepare").send({
       walletAddress: signer.address,
       tokenAmount: parseUnits(tokenAmount).toString(),
-      slippageBps: slippage, // 5%
+      slippageBps: slippage,
       tradeDirection: 'BUY',
       tokenAddress,
       fixedSide: FixedSide.OUT,
