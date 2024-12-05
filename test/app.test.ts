@@ -8,10 +8,9 @@ describe("App tests", () => {
   const tokenAddress = '0xD22248Cc09b468F69a65d4c519099699049dA242'
   const moonshotContract = '0xA103455889D4e22600c208D6125E0E7673106695'
 
-  it('Prepare and send BUY + Fixed Out', async () => {
+  it('[/prepare] Transaction object is correct', async () => {
     const provider = new JsonRpcProvider(process.env.RPC_URL);
     const signer = new Wallet(process.env.PRIVATE_KEY as string, provider);
-    const erc20tokenContract = new ethers.Contract(tokenAddress, erc20, signer);
 
     const tokenAmount = '100';
     const slippage = 50000; // 5%
@@ -34,6 +33,26 @@ describe("App tests", () => {
     expect(response.body.from).toEqual(signer.address);
     expect(response.body.chainId).toEqual(8453);
     expect(response.body.gasLimit).toBeTruthy();
+  })
+
+  it('Prepare and send BUY + Fixed Out', async () => {
+    const provider = new JsonRpcProvider(process.env.RPC_URL);
+    const signer = new Wallet(process.env.PRIVATE_KEY as string, provider);
+    const erc20tokenContract = new ethers.Contract(tokenAddress, erc20, signer);
+
+    const tokenAmount = '100';
+    const slippage = 50000; // 5%
+
+    const response = await request(app).post("/prepare").send({
+      walletAddress: signer.address,
+      tokenAmount: parseUnits(tokenAmount).toString(),
+      slippageBps: slippage,
+      tradeDirection: 'BUY',
+      tokenAddress,
+      fixedSide: FixedSide.OUT,
+    });
+
+    expect(response.status).toEqual(200);
 
     const ethBalanceBeforeBuy = await provider.getBalance(signer.address);
     const tokenBalanceBeforeBuy = await erc20tokenContract.balanceOf(signer.address);
