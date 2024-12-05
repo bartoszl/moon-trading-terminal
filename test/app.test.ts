@@ -9,9 +9,9 @@ describe("App tests", () => {
   const moonshotContract = '0xA103455889D4e22600c208D6125E0E7673106695'
 
   it('Prepare and send BUY + Fixed Out', async () => {
-    let provider = new JsonRpcProvider(process.env.RPC_URL);
+    const provider = new JsonRpcProvider(process.env.RPC_URL);
     const signer = new Wallet(process.env.PRIVATE_KEY as string, provider);
-    let erc20tokenContract = new ethers.Contract(tokenAddress, erc20, signer);
+    const erc20tokenContract = new ethers.Contract(tokenAddress, erc20, signer);
 
     const tokenAmount = '100';
     const slippage = 50000;
@@ -49,11 +49,6 @@ describe("App tests", () => {
 
     await provider.send("evm_mine", []);
 
-    // for unknown to me reason the state of blockchain in the first provider does not update.
-    provider = new JsonRpcProvider(process.env.RPC_URL);
-    // connect to new provider
-    erc20tokenContract = new ethers.Contract(tokenAddress, erc20, signer);
-
     const ethBalanceAfterBuy = await provider.getBalance(signer.address);
     const tokenBalanceAfterBuy: bigint = await erc20tokenContract.balanceOf(signer.address);
 
@@ -89,11 +84,6 @@ describe("App tests", () => {
 
     await provider.send("evm_mine", []);
 
-    // for unknown to me reason the state of blockchain in the first provider does not update.
-    provider = new JsonRpcProvider(process.env.RPC_URL);
-    // connect to new provider
-    erc20tokenContract = new ethers.Contract(tokenAddress, erc20, signer);
-
     const tokenBalanceAfterSell = await erc20tokenContract.balanceOf(signer.address);
 
     expect(tokenBalanceAfterBuy - tokenBalanceAfterSell).toEqual(tokenDifference)
@@ -119,8 +109,6 @@ describe("App tests", () => {
     const confirmResponse = await request(app).post("/confirm").send({
       signedTx,
     });
-
-    await provider.send("evm_mine", []);
 
     expect(confirmResponse.status).toEqual(200);
     expect(confirmResponse.body.status).toEqual(1);
