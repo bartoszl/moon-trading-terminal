@@ -80,7 +80,7 @@ export class MoonshotService {
       gasPrice: feeData.gasPrice!,
       from: walletAddress,
       chainId: ChainId.BASE,
-      value: this.addThresholdToCollateralIfNecessary(tx.value!, tradeDirection, fixedSide),
+      value: tx.value ? this.addThresholdToCollateralIfNecessary(tx.value, tradeDirection, fixedSide) : 0,
     }
 
     const gasLimit = await this.provider.estimateGas(enrichedTx);
@@ -94,7 +94,6 @@ export class MoonshotService {
   async confirmTransaction(signedTx: string) {
     const txHash = await this.provider.send("eth_sendRawTransaction", [signedTx])
 
-    // This ensures the transaction gets into the block. Does not wait for confirmation though.
     return this.provider.waitForTransaction(txHash);
   }
 
@@ -114,7 +113,7 @@ export class MoonshotService {
     fixedSide: FixedSide,
   ) {
     if(tradeDirection === 'BUY' && fixedSide === FixedSide.OUT) {
-      return collateralAmount * 105n / 100n
+      return collateralAmount * 105n / 100n // Need to send a bit more otherwise does not work.
     }
 
     return collateralAmount;

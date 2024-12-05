@@ -38,13 +38,12 @@ app.post("/prepare", async (req: Request, res: Response) => {
 
     const transaction = await moonshotService.prepareTransaction({
       ...body,
-      collateralAmount: body.collateralAmount ?  BigInt(body.collateralAmount) : undefined,
-      tokenAmount: body.tokenAmount ?  BigInt(body.tokenAmount) : undefined,
+      collateralAmount: body.collateralAmount ?  BigInt(body.collateralAmount) : 0n,
+      tokenAmount: body.tokenAmount ?  BigInt(body.tokenAmount) : 0n,
     })
 
     res.json(parseObjectWithBigInts(transaction));
   } catch(error) {
-    console.log(error);
     res.status(500).send({ error })
   }
 })
