@@ -35,8 +35,8 @@ describe("App tests", () => {
     expect(response.body.chainId).toEqual(8453);
     expect(response.body.gasLimit).toBeTruthy();
 
-    const ethBalanceBefore = await provider.getBalance(signer.address);
-    const tokenBalanceBefore = await erc20tokenContract.balanceOf(signer.address);
+    const ethBalanceBeforeBuy = await provider.getBalance(signer.address);
+    const tokenBalanceBeforeBuy = await erc20tokenContract.balanceOf(signer.address);
 
     const signedTx = await signer.signTransaction(response.body);
 
@@ -54,13 +54,13 @@ describe("App tests", () => {
     // connect to new provider
     erc20tokenContract = new ethers.Contract(tokenAddress, erc20, signer);
 
-    const ethBalanceAfter = await provider.getBalance(signer.address);
+    const ethBalanceAfterBuy = await provider.getBalance(signer.address);
     const tokenBalanceAfterBuy: bigint = await erc20tokenContract.balanceOf(signer.address);
 
     const gasUsed = BigInt(confirmResponse.body.gasPrice)*BigInt(confirmResponse.body.gasUsed)
-    const ethSpent = ethBalanceAfter - ethBalanceBefore;
+    const ethSpent = ethBalanceAfterBuy - ethBalanceBeforeBuy;
 
-    const tokenDifference = tokenBalanceAfterBuy - tokenBalanceBefore;
+    const tokenDifference = tokenBalanceAfterBuy - tokenBalanceBeforeBuy;
     const tokensReceived = Number(formatUnits(tokenDifference).toString());
     const expectedMinimumReceived = Number(tokenAmount) * (1 - (slippage/ 1e6))
 
