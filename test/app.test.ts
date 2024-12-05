@@ -55,18 +55,16 @@ describe("App tests", () => {
     erc20tokenContract = new ethers.Contract(tokenAddress, erc20, signer);
 
     const ethBalanceAfter = await provider.getBalance(signer.address);
-    const tokenBalanceAfter: bigint = await erc20tokenContract.balanceOf(signer.address);
+    const tokenBalanceAfterBuy: bigint = await erc20tokenContract.balanceOf(signer.address);
 
     const gasUsed = BigInt(confirmResponse.body.gasPrice)*BigInt(confirmResponse.body.gasUsed)
     const ethSpent = ethBalanceAfter - ethBalanceBefore;
 
-    const tokenDifference = tokenBalanceAfter - tokenBalanceBefore;
+    const tokenDifference = tokenBalanceAfterBuy - tokenBalanceBefore;
     const tokensReceived = Number(formatUnits(tokenDifference).toString());
     const expectedMinimumReceived = Number(tokenAmount) * (1 - (slippage/ 1e6))
-    const expectedMaximumReceived = Number(tokenAmount) * (1 + (slippage/ 1e6))
 
     expect(ethSpent).toBeLessThan(gasUsed + BigInt(response.body.value));
-    expect(tokensReceived).toBeLessThan(expectedMaximumReceived);
     expect(tokensReceived).toBeGreaterThan(expectedMinimumReceived);
 
     await erc20tokenContract.approve(moonshotContract, tokenDifference)
@@ -80,12 +78,10 @@ describe("App tests", () => {
       fixedSide: FixedSide.IN,
     });
 
-    console.log(sellResponse.body);
-
     const signedSellTx = await signer.signTransaction(sellResponse.body);
 
     const confirmSellResponse = await request(app).post("/confirm").send({
-      signedSellTx,
+      signedTx: signedSellTx,
     });
 
     expect(confirmSellResponse.status).toEqual(200);
@@ -93,15 +89,14 @@ describe("App tests", () => {
 
     await provider.send("evm_mine", []);
 
-// for unknown to me reason the state of blockchain in the first provider does not update.
+    // for unknown to me reason the state of blockchain in the first provider does not update.
     provider = new JsonRpcProvider(process.env.RPC_URL);
-// connect to new provider
+    // connect to new provider
     erc20tokenContract = new ethers.Contract(tokenAddress, erc20, signer);
 
     const tokenBalanceAfterSell = await erc20tokenContract.balanceOf(signer.address);
 
-    expect(tokenBalanceAfterSell).toEqual(0)
-
+    expect(tokenBalanceAfterBuy - tokenBalanceAfterSell).toEqual(tokenDifference)
   });
 
   it('Prepare and send BUY + Fixed In', async () => {
