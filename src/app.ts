@@ -22,6 +22,7 @@ app.post('/confirm', async (req: Request, res: Response) => {
 
     res.send(result)
   } catch(error) {
+    console.log(error);
     res.status(500).send({ error })
   }
 
