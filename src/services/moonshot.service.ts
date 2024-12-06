@@ -2,6 +2,7 @@ import {JsonRpcProvider, TransactionRequest, Wallet} from 'ethers';
 import {Environment, FixedSide, GetTokenAmountOptions, Moonshot, Token} from '@wen-moon-ser/moonshot-sdk-evm';
 import {ChainId} from "@heliofi/launchpad-common";
 import {config} from "../config/config";
+import {TypedContractEvent} from "@wen-moon-ser/moonshot-sdk-evm/dist/types/evm/typechain-types/common";
 
 interface IPrepareTransactionArgs {
   walletAddress: string;
@@ -26,6 +27,14 @@ export class MoonshotService {
       signer: signer,
       env: Environment.MAINNET,
     });
+  }
+
+  getMoonshot(): Moonshot {
+    return this.moonshot;
+  }
+
+  getProvider(): JsonRpcProvider {
+    return this.provider;
   }
 
   async prepareTransaction({
@@ -117,6 +126,15 @@ export class MoonshotService {
 
   private addGasLimitThreshold(gasLimit: bigint) {
     return gasLimit * 110n / 100n;
+  }
+
+  async fetchPastEvents(event: TypedContractEvent, fromBlock: number, toBlock: number) {
+    const events = await this.moonshot.getFactory().queryFilter(event, fromBlock, toBlock);
+
+    events.forEach(event => {
+      //TODO: Process Event
+      console.log(event);
+    })
   }
 }
 

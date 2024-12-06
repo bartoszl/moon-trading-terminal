@@ -10,6 +10,7 @@ app.use(cors())
 
 app.post('/confirm', async (req: Request, res: Response) => {
   try {
+    // TODO: validate body
     const { body } = req;
 
     const moonshotService = new MoonshotService();
@@ -18,7 +19,7 @@ app.post('/confirm', async (req: Request, res: Response) => {
 
     res.send(result)
   } catch(error) {
-    console.log(error);
+    // TODO: improve error handling
     res.status(500).send({ error })
   }
 
@@ -26,6 +27,7 @@ app.post('/confirm', async (req: Request, res: Response) => {
 
 app.post("/prepare", async (req: Request, res: Response) => {
   try {
+    // TODO: validate body
     const { body } = req;
 
     const moonshotService = new MoonshotService();
@@ -38,6 +40,7 @@ app.post("/prepare", async (req: Request, res: Response) => {
 
     res.json(parseObjectWithBigInts(transaction));
   } catch(error) {
+    // TODO: improve error handling
     res.status(500).send({ error })
   }
 })
