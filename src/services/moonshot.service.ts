@@ -1,6 +1,7 @@
 import {JsonRpcProvider, TransactionRequest, Wallet} from 'ethers';
 import {Environment, FixedSide, GetTokenAmountOptions, Moonshot, Token} from '@wen-moon-ser/moonshot-sdk-evm';
 import {ChainId} from "@heliofi/launchpad-common";
+import {config} from "../config/config";
 
 interface IPrepareTransactionArgs {
   walletAddress: string;
@@ -12,19 +13,14 @@ interface IPrepareTransactionArgs {
   fixedSide: FixedSide;
 }
 
-interface IMoonShotServiceConstructorArgs {
-  rpcUrl: string;
-  privateKey: string;
-}
-
 export class MoonshotService {
   private readonly provider: JsonRpcProvider;
   private readonly moonshot: Moonshot;
 
-  constructor({ rpcUrl, privateKey }: IMoonShotServiceConstructorArgs) {
-    this.provider = new JsonRpcProvider(rpcUrl);
+  constructor() {
+    this.provider = new JsonRpcProvider(config.rpcUrl);
 
-    const signer = new Wallet(privateKey, this.provider);
+    const signer = new Wallet(config.privateKey, this.provider);
 
     this.moonshot = new Moonshot({
       signer: signer,

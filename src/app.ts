@@ -1,7 +1,6 @@
 import express, { Express, Request, Response } from "express";
 import {MoonshotService} from "./services/moonshot.service";
 import cors from 'cors';
-import { config } from "./config/config";
 import {parseObjectWithBigInts} from "./helpers/parseObjectWithBigInts";
 
 const app: Express = express();
@@ -13,10 +12,7 @@ app.post('/confirm', async (req: Request, res: Response) => {
   try {
     const { body } = req;
 
-    const moonshotService = new MoonshotService({
-      rpcUrl: config.rpcUrl,
-      privateKey: config.privateKey,
-    });
+    const moonshotService = new MoonshotService();
 
     const result = await moonshotService.confirmTransaction(body.signedTx);
 
@@ -32,10 +28,7 @@ app.post("/prepare", async (req: Request, res: Response) => {
   try {
     const { body } = req;
 
-    const moonshotService = new MoonshotService({
-      rpcUrl: config.rpcUrl,
-      privateKey: config.privateKey,
-    });
+    const moonshotService = new MoonshotService();
 
     const transaction = await moonshotService.prepareTransaction({
       ...body,
