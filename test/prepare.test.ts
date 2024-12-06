@@ -6,7 +6,7 @@ import {FixedSide} from "@wen-moon-ser/moonshot-sdk-evm";
 describe("[/Prepare]", () => {
   const tokenAddress = '0xD22248Cc09b468F69a65d4c519099699049dA242'
 
-  it('[BUY, OUT] Transaction object is correct', async () => {
+  test('[BUY, OUT] Transaction object is correct', async () => {
     const provider = new JsonRpcProvider(process.env.RPC_URL);
     const signer = new Wallet(process.env.PRIVATE_KEY as string, provider);
 

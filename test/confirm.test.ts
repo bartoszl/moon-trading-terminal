@@ -6,9 +6,9 @@ import { erc20 } from "../src/abi/erc20";
 
 describe("[/Confirm]", () => {
   const tokenAddress = '0xD22248Cc09b468F69a65d4c519099699049dA242'
-  const moonshotContract = '0xA103455889D4e22600c208D6125E0E7673106695'
+  const moonshotContractBaseMainnetAddress = '0xA103455889D4e22600c208D6125E0E7673106695'
 
-  it('Buy FixedOut and Sell FixedIn', async () => {
+  test('Buy FixedOut and Sell FixedIn', async () => {
     const provider = new JsonRpcProvider(process.env.RPC_URL);
     const signer = new Wallet(process.env.PRIVATE_KEY as string, provider);
     const erc20tokenContract = new ethers.Contract(tokenAddress, erc20, signer);
@@ -16,7 +16,7 @@ describe("[/Confirm]", () => {
     const tokenAmount = '100';
     const slippage = 50000; // 5%
 
-    const response = await request(app).post("/prepare").send({
+    const buyResponse = await request(app).post("/prepare").send({
       walletAddress: signer.address,
       tokenAmount: parseUnits(tokenAmount).toString(),
       slippageBps: slippage,
@@ -25,12 +25,12 @@ describe("[/Confirm]", () => {
       fixedSide: FixedSide.OUT,
     });
 
-    expect(response.status).toEqual(200);
+    expect(buyResponse.status).toEqual(200);
 
     const ethBalanceBeforeBuy = await provider.getBalance(signer.address);
     const tokenBalanceBeforeBuy = await erc20tokenContract.balanceOf(signer.address);
 
-    const signedTx = await signer.signTransaction(response.body);
+    const signedTx = await signer.signTransaction(buyResponse.body);
 
     const confirmResponse = await request(app).post("/confirm").send({
       signedTx,
@@ -47,18 +47,18 @@ describe("[/Confirm]", () => {
     const gasUsed = BigInt(confirmResponse.body.gasPrice)*BigInt(confirmResponse.body.gasUsed)
     const ethSpent = ethBalanceAfterBuy - ethBalanceBeforeBuy;
 
-    const tokenDifference = tokenBalanceAfterBuy - tokenBalanceBeforeBuy;
-    const tokensReceived = Number(formatUnits(tokenDifference).toString());
+    const tokensReceived = tokenBalanceAfterBuy - tokenBalanceBeforeBuy;
+    const formattedTokensReceived = Number(formatUnits(tokensReceived).toString());
     const expectedMinimumReceived = Number(tokenAmount) * (1 - (slippage/ 1e6))
 
-    expect(ethSpent).toBeLessThan(gasUsed + BigInt(response.body.value));
-    expect(tokensReceived).toBeGreaterThan(expectedMinimumReceived);
+    expect(ethSpent).toBeLessThan(gasUsed + BigInt(buyResponse.body.value));
+    expect(formattedTokensReceived).toBeGreaterThan(expectedMinimumReceived);
 
-    await erc20tokenContract.approve(moonshotContract, tokenDifference)
+    await erc20tokenContract.approve(moonshotContractBaseMainnetAddress, tokensReceived)
 
     const sellResponse = await request(app).post("/prepare").send({
       walletAddress: signer.address,
-      tokenAmount: tokenDifference.toString(),
+      tokenAmount: tokensReceived.toString(),
       slippageBps: slippage, // 5%
       tradeDirection: 'SELL',
       tokenAddress,
@@ -78,10 +78,10 @@ describe("[/Confirm]", () => {
 
     const tokenBalanceAfterSell = await erc20tokenContract.balanceOf(signer.address);
 
-    expect(tokenBalanceAfterBuy - tokenBalanceAfterSell).toEqual(tokenDifference)
+    expect(tokenBalanceAfterBuy - tokenBalanceAfterSell).toEqual(tokensReceived)
   });
 
-  it('Buy FixedIn', async () => {
+  test('Buy FixedIn', async () => {
     const provider = new JsonRpcProvider(process.env.RPC_URL);
     const signer = new Wallet(process.env.PRIVATE_KEY as string, provider);
 
