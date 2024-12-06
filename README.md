@@ -20,12 +20,8 @@ In order to run app create a `.env` file and fill in environmental variables as 
 To start the app run:
 ```
 npm i
-npm i @heliofi/launchpad-common@1.1.0
-
 npm run dev
 ```
-
-In order for the app to work you have to install specific version of `@heliofi/launchpad-common`. 
 
 ## Integration Testing
 
